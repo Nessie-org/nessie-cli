@@ -1,0 +1,60 @@
+File:
+    commands+=Command
+;
+
+Command:
+    command=ID (subcommand=ID)? args*=Argument kwargs*=KWParameter ';'?
+;
+
+Argument:
+    Expression |STRING | NUMBER | ID
+;
+KWParameter:
+    '-'('-'?) key=ID (value=KeyValuePair | value=Argument)?
+;
+
+KeyValuePair:
+    key=ID '=' value=Argument
+;
+
+Argument:
+    Expression
+  | STRING
+  | NUMBER
+  | ID
+;
+
+Expression:
+    OrExpression
+;
+
+OrExpression:
+    AndExpression ('||' AndExpression)*
+;
+
+AndExpression:
+    ComparisonExpression ('&&' ComparisonExpression)*
+;
+
+ComparisonExpression:
+    AdditiveExpression (ComparisonOperator AdditiveExpression)?
+;
+
+AdditiveExpression:
+    MultiplicativeExpression (('+' | '-') MultiplicativeExpression)*
+;
+
+MultiplicativeExpression:
+    Primary (('*' | '/') Primary)*
+;
+
+Primary:
+    NUMBER
+  | ID
+  | '(' Expression ')'
+;
+
+ComparisonOperator:
+    '>' | '<' | '>=' | '<=' | '==' | '!='
+;
+

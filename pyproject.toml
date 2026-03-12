@@ -1,0 +1,20 @@
+[project]
+name = "nessie-cli"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "textx>=4.3.0",
+]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.19.1",
+    "ruff>=0.15.5",
+    "textx-dev>=0.2.0",
+    "textx[cli]>=4.3.0",
+]
+
+[project.entry-points.textx_languages]
+nessie_cli = "nessie_cli:nessie_cli_language"
