@@ -37,7 +37,7 @@ class Evaluator:
         elif isinstance(exp, str):
             return exp
         elif hasattr(exp, "op"):
-            if isinstance(exp.right, list):
+            if hasattr(exp, "right") and isinstance(exp.right, list):
                 right_vals = [self.evaluate(context, e) for e in exp.right]
                 return self._eval_recursive(
                     self.evaluate(context, exp.left), right_vals, exp.op

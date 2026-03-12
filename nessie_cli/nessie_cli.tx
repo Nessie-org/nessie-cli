@@ -42,7 +42,7 @@ MultiplicativeExpression:
 ;
 
 NotExpression:
-    ('!' )* Primary
+    (op='!' )* left=Primary
 ;
 
 Primary:

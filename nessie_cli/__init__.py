@@ -23,8 +23,13 @@ def process_expression(exp):
     if isinstance(exp.op, list):
         exp.op = exp.op[0] if exp.op else None
 
-    if not hasattr(exp, "right") or exp.right is None:
+    if (not hasattr(exp, "right") or exp.right is None) and not hasattr(exp, "op"):
         return process_expression(exp.left)
+    elif hasattr(exp, "left") and not hasattr(exp, "right") and hasattr(exp, "op"):
+        if exp.op is not None:
+            return exp
+        else:
+            return process_expression(exp.left)
     else:
         exp.left = process_expression(exp.left)
         if isinstance(exp.right, list):

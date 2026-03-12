@@ -59,6 +59,14 @@ class Interpreter:
             exp = command.args[0]
             ev = Evaluator(exp)
 
+            print("Variables requested by expression:", ev.variables)
+            print("Context for evaluation:")
+            try:
+                result = ev.evaluate({})
+                print(f"Evaluation result: {result}")
+            except ValueError as e:
+                print(f"Error evaluating expression: {e}")
+
             # TODO: Have an actual Action API
             toSend = Action("SomeName", {"evaluator": ev})
         except Exception as e:
