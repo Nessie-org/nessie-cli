@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
+    "nessie-api",
     "textx>=4.3.0",
 ]
 
@@ -15,6 +16,9 @@ dev = [
     "textx-dev>=0.2.0",
     "textx[cli]>=4.3.0",
 ]
+
+[tool.uv.sources]
+nessie-api = { git = "https://github.com/Nessie-org/nessie-api.git" }
 
 [project.entry-points.textx_languages]
 nessie_cli = "nessie_cli:nessie_cli_language"

@@ -1,3 +1,6 @@
+from nessie_api.models.plugin import Action
+
+
 class Interpreter:
     def __init__(self, verbose=False):
         self.verbose = verbose
@@ -8,17 +11,47 @@ class Interpreter:
 
     def execute_command(self, command):
         if self.verbose:
-            print(
-                f"Executing command: {command.command}"
-                + (f", {command.subcommand}" if command.subcommand else "")
+            self._show_command(command)
+
+        handler_name = (
+            f"_execute_{command.command}_{command.subcommand}"
+            if command.subcommand
+            else f"_execute_{command.command}"
+        )
+
+        handler = getattr(self, handler_name, None)
+        if handler:
+            handler(command)
+        else:
+            raise NotImplementedError(
+                f"No handler for command: {command.command}"
+                + (f", subcommand: {command.subcommand}" if command.subcommand else "")
             )
-            for arg in command.args:
-                print(f" - Argument: {arg}")
-                print(f"   - Type: {type(arg).__name__}")
-                if arg.__class__.__name__.endswith("Expression"):
-                    self._show_exp(arg)
-            for kwarg in command.kwargs:
-                print(f" - Keyword Argument: {kwarg.key} = {kwarg.value}")
+
+    def _execute_create_node(self, command):
+
+        try:
+            id = command.kwargs.get("id")
+            properties = {
+                k.value[0]: k.value[1] for k in command.kwargs if k.key != "property"
+            }
+            # TODO: Have an actual Action API
+            toSend = Action("SomeName", {"id": id, "properties": properties})
+        except Exception as e:
+            print(f"Error executing create node command: {e}")
+
+    def _show_command(self, command):
+        print(
+            f"Executing command: {command.command}"
+            + (f", {command.subcommand}" if command.subcommand else "")
+        )
+        for arg in command.args:
+            print(f" - Argument: {arg}")
+            print(f"   - Type: {type(arg).__name__}")
+            if arg.__class__.__name__.endswith("Expression"):
+                self._show_exp(arg)
+        for kwarg in command.kwargs:
+            print(f" - Keyword Argument: {kwarg.key} = {kwarg.value}")
 
     def _show_exp(self, exp, indent=0):
         print("  " * indent + f"Expression: {type(exp).__name__}")

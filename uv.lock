@@ -148,10 +148,16 @@ wheels = [
 ]
 
 [[package]]
+name = "nessie-api"
+version = "0.1.0"
+source = { git = "https://github.com/Nessie-org/nessie-api.git#3ff409cb4488105f8835f9d0b46565cb100167aa" }
+
+[[package]]
 name = "nessie-cli"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "nessie-api" },
     { name = "textx" },
 ]
 
@@ -164,7 +170,10 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "textx", specifier = ">=4.3.0" }]
+requires-dist = [
+    { name = "nessie-api", git = "https://github.com/Nessie-org/nessie-api.git" },
+    { name = "textx", specifier = ">=4.3.0" },
+]
 
 [package.metadata.requires-dev]
 dev = [
