@@ -3,4 +3,4 @@ create node --id 2 --property Name=Tom --property Age=30 --property Gender=M --p
 create edge 1 2 --id 1 --property Name=Siblings
 edit node --id 2 --property Age=40
 filter `A || B || C`;
-search `Name==Tom`
+search `$Name==Tom`

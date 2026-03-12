@@ -51,6 +51,11 @@ def process_expression(exp):
         return exp
 
 
+class VariableName:
+    def __init__(self, name):
+        self.name = name
+
+
 @language("nessie_cli", "*.nss")
 def nessie_cli_language():
     "nessie_cli language"

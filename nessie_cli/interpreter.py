@@ -96,7 +96,9 @@ class Interpreter:
         if isinstance(exp, (int, float, str)):
             print("  " * indent + f"Value: {exp}")
             return
-        print("  " * indent + f"Operator: {getattr(exp, 'op', None)}")
+        op = getattr(exp, "op", None)
+        if op:
+            print("  " * indent + f"Operator: {op}")
         if hasattr(exp, "left"):
             print("  " * (indent + 1) + "Left:")
             self._show_exp(exp.left, indent + 2)
@@ -107,3 +109,5 @@ class Interpreter:
                     self._show_exp(e, indent + 2)
             else:
                 self._show_exp(exp.right, indent + 2)
+        if hasattr(exp, "name"):
+            print("  " * indent + f"Variable Name: {exp.name}")

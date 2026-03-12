@@ -38,13 +38,23 @@ AdditiveExpression:
 ;
 
 MultiplicativeExpression:
-    left=Primary ((op='*' | op='/') right=Primary)*
+    left=NotExpression ((op='*' | op='/') right=NotExpression)*
+;
+
+NotExpression:
+    ('!' )* Primary
 ;
 
 Primary:
-    NUMBER
+    VariableName
+  | NUMBER
   | ID
   | '(' Expression ')'
+  
+;
+
+VariableName:
+    '$' name=ID
 ;
 
 ComparisonOperator:
