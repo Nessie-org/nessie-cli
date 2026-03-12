@@ -23,6 +23,7 @@ class Interpreter:
 
 def show_exp(exp, indent=0):
     print("  " * indent + f"Expression: {type(exp).__name__}")
+    print("  " * indent + f"Operator: {getattr(exp, 'op', None)}")
     if hasattr(exp, "left"):
         print("  " * (indent + 1) + "Left:")
         show_exp(exp.left, indent + 2)

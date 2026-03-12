@@ -22,23 +22,23 @@ Expression:
 ;
 
 OrExpression:
-    left=AndExpression ('||' right=AndExpression)*
+    left=AndExpression (op='||' right=AndExpression)*
 ;
 
 AndExpression:
-    left=ComparisonExpression ('&&' right=ComparisonExpression)*
+    left=ComparisonExpression (op='&&' right=ComparisonExpression)*
 ;
 
 ComparisonExpression:
-    left=AdditiveExpression (ComparisonOperator right=AdditiveExpression)?
+    left=AdditiveExpression (op=ComparisonOperator right=AdditiveExpression)?
 ;
 
 AdditiveExpression:
-    left=MultiplicativeExpression (('+' | '-') right=MultiplicativeExpression)*
+    left=MultiplicativeExpression ((op='+' | op='-') right=MultiplicativeExpression)*
 ;
 
 MultiplicativeExpression:
-    left=Primary (('*' | '/') right=Primary)*
+    left=Primary ((op='*' | op='/') right=Primary)*
 ;
 
 Primary:
