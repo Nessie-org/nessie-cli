@@ -26,7 +26,7 @@ class Evaluator:
         return variables
 
     def evaluate(self, context, exp=None):
-        exp = exp if exp else self._expression
+        exp = exp if exp is not None else self._expression
         if type(exp).__name__ == "VariableName":
             try:
                 return context[exp.name]
