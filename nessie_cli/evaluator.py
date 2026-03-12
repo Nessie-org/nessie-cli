@@ -28,7 +28,10 @@ class Evaluator:
     def evaluate(self, context, exp=None):
         exp = exp if exp else self._expression
         if type(exp).__name__ == "VariableName":
-            return context.get(exp.name)
+            try:
+                return context[exp.name]
+            except KeyError as e:
+                raise ValueError(f"Variable '{exp.name}' not found in context") from e
         elif isinstance(exp, (int, float)):
             return exp
         elif isinstance(exp, str):

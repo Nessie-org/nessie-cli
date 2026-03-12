@@ -57,7 +57,7 @@ class Interpreter:
 
         try:
             exp = command.args[0]
-            context = {"Age": 55, "Name": "Toms"}
+            context = {"Age": 55}
             ev = Evaluator(exp)
             result = ev.evaluate(context, exp)
             print("Variables requested by expression:", ev.variables)
