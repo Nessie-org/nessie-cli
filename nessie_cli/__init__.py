@@ -11,6 +11,42 @@ def process_KWParameter(kv):
         pass
 
 
+def process_expression(exp):
+    print(
+        f"Processing expression: {type(exp).__name__}",
+        type(exp.right) if hasattr(exp, "right") else "No right",
+    )
+
+    if not hasattr(exp, "left"):
+        return exp
+    if not hasattr(exp, "right") or exp.right is None:
+        return process_expression(exp.left)
+    else:
+        exp.left = process_expression(exp.left)
+        try:
+            iter(exp.right)
+            rhs = [process_expression(e) for e in exp.right]
+            if not any(rhs):
+                del exp.right
+            else:
+                exp.right = rhs if any(rhs) else None
+        except TypeError:
+            ret = process_expression(exp.right)
+            if ret is None:
+                del exp.right
+            else:
+                exp.right = ret
+
+        if not hasattr(exp, "right") and hasattr(exp, "left"):
+            return exp.left
+        elif not hasattr(exp, "left") and hasattr(exp, "right"):
+            return exp.right
+        elif not hasattr(exp, "left") and not hasattr(exp, "right"):
+            return None
+
+        return exp
+
+
 @language("nessie_cli", "*.nss")
 def nessie_cli_language():
     "nessie_cli language"
@@ -24,6 +60,7 @@ def nessie_cli_language():
     mm.register_obj_processors(
         {
             "KWParameter": process_KWParameter,
+            "OrExpression": process_expression,
         }
     )
 

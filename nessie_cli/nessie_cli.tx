@@ -7,7 +7,7 @@ Command:
 ;
 
 Argument:
-    Expression |STRING | NUMBER | ID
+    ('`' Expression '`') | STRING | NUMBER | ID
 ;
 KWParameter:
     '-'('-'?) key=ID (value=KeyValuePair | value=Argument)?
@@ -17,35 +17,28 @@ KeyValuePair:
     key=ID '=' value=Argument
 ;
 
-Argument:
-    Expression
-  | STRING
-  | NUMBER
-  | ID
-;
-
 Expression:
     OrExpression
 ;
 
 OrExpression:
-    AndExpression ('||' AndExpression)*
+    left=AndExpression ('||' right=AndExpression)*
 ;
 
 AndExpression:
-    ComparisonExpression ('&&' ComparisonExpression)*
+    left=ComparisonExpression ('&&' right=ComparisonExpression)*
 ;
 
 ComparisonExpression:
-    AdditiveExpression (ComparisonOperator AdditiveExpression)?
+    left=AdditiveExpression (ComparisonOperator right=AdditiveExpression)?
 ;
 
 AdditiveExpression:
-    MultiplicativeExpression (('+' | '-') MultiplicativeExpression)*
+    left=MultiplicativeExpression (('+' | '-') right=MultiplicativeExpression)*
 ;
 
 MultiplicativeExpression:
-    Primary (('*' | '/') Primary)*
+    left=Primary (('*' | '/') right=Primary)*
 ;
 
 Primary:
@@ -55,6 +48,6 @@ Primary:
 ;
 
 ComparisonOperator:
-    '>' | '<' | '>=' | '<=' | '==' | '!='
+    '>=' | '<=' | '==' | '!=' | '>' | '<'
 ;
 
