@@ -3,7 +3,7 @@ File:
 ;
 
 Command:
-    command=ID (subcommand=ID)? args*=Argument kwargs*=KWParameter ';'?
+    command=ID (subcommand=ID)? args*=Argument kwargs*=KWParameter ('#')? ';'?
 ;
 
 Argument:

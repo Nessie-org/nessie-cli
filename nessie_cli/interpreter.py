@@ -40,6 +40,44 @@ class Interpreter:
         except Exception as e:
             print(f"Error executing create node command: {e}")
 
+    def _execute_create_edge(self, command):
+        try:
+            id = command.kwargs.get("id")
+            properties = {
+                k.value[0]: k.value[1] for k in command.kwargs if k.key != "property"
+            }
+            # TODO: Have an actual Action API
+            toSend = Action("SomeName", {"id": id, "properties": properties})
+        except Exception as e:
+            print(f"Error executing create edge command: {e}")
+
+    def _execute_filter(self, command):
+        try:
+            exp = command.args[0]
+            # TODO: Have an actual Action API
+            toSend = Action("SomeName", {"expression": exp})
+        except Exception as e:
+            print(f"Error executing filter command: {e}")
+
+    def _execute_search(self, command):
+        try:
+            exp = command.args[0]
+            # TODO: Have an actual Action API
+            toSend = Action("SomeName", {"expression": exp})
+        except Exception as e:
+            print(f"Error executing search command: {e}")
+
+    def _execute_edit_node(self, command):
+        try:
+            id = command.kwargs.get("id")
+            properties = {
+                k.value[0]: k.value[1] for k in command.kwargs if k.key != "property"
+            }
+            # TODO: Have an actual Action API
+            toSend = Action("SomeName", {"id": id, "properties": properties})
+        except Exception as e:
+            print(f"Error executing edit node command: {e}")
+
     def _show_command(self, command):
         print(
             f"Executing command: {command.command}"
