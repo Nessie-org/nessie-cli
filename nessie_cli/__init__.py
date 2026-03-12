@@ -27,14 +27,13 @@ def process_expression(exp):
         return process_expression(exp.left)
     else:
         exp.left = process_expression(exp.left)
-        try:
-            iter(exp.right)
+        if isinstance(exp.right, list):
             rhs = [process_expression(e) for e in exp.right]
             if not any(rhs):
                 del exp.right
             else:
                 exp.right = rhs if any(rhs) else None
-        except TypeError:
+        else:
             ret = process_expression(exp.right)
             if ret is None:
                 del exp.right

@@ -1,5 +1,7 @@
 from nessie_api.models.plugin import Action
 
+from nessie_cli.evaluator import Evaluator
+
 
 class Interpreter:
     def __init__(self, verbose=False):
@@ -52,8 +54,14 @@ class Interpreter:
             print(f"Error executing create edge command: {e}")
 
     def _execute_filter(self, command):
+
         try:
             exp = command.args[0]
+            context = {"Age": 55, "Name": "Toms"}
+            ev = Evaluator(exp)
+            result = ev.evaluate(context, exp)
+            print(f"Evaluation result: {result}")
+
             # TODO: Have an actual Action API
             toSend = Action("SomeName", {"expression": exp})
         except Exception as e:

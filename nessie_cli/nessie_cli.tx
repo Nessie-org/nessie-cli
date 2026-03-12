@@ -49,6 +49,7 @@ Primary:
     VariableName
   | NUMBER
   | ID
+  | STRING
   | '(' Expression ')'
   
 ;
