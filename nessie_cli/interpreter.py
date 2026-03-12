@@ -57,14 +57,10 @@ class Interpreter:
 
         try:
             exp = command.args[0]
-            context = {"Age": 55}
             ev = Evaluator(exp)
-            result = ev.evaluate(context, exp)
-            print("Variables requested by expression:", ev.variables)
-            print(f"Evaluation result: {result}")
 
             # TODO: Have an actual Action API
-            toSend = Action("SomeName", {"expression": exp})
+            toSend = Action("SomeName", {"evaluator": ev})
         except Exception as e:
             print(f"Error executing filter command: {e}")
 
