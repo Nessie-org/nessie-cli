@@ -1,1 +1,1 @@
-filter `1 + ($Age > 30)`
+filter `1 + ($Age > 30) && ($Name == Tom)`

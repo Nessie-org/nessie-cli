@@ -60,6 +60,7 @@ class Interpreter:
             context = {"Age": 55, "Name": "Toms"}
             ev = Evaluator(exp)
             result = ev.evaluate(context, exp)
+            print("Variables requested by expression:", ev.variables)
             print(f"Evaluation result: {result}")
 
             # TODO: Have an actual Action API
