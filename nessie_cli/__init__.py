@@ -1,6 +1,10 @@
 import os
 from textx import language, metamodel_from_file
 
+from nessie_api.models import plugin
+
+from .interpreter import Interpreter
+
 __version__ = "0.1.0.dev"
 
 
@@ -55,11 +59,6 @@ def process_expression(exp):
         return exp
 
 
-class VariableName:
-    def __init__(self, name):
-        self.name = name
-
-
 @language("nessie_cli", "*.nss")
 def nessie_cli_language():
     "nessie_cli language"
@@ -78,3 +77,29 @@ def nessie_cli_language():
     )
 
     return mm
+
+
+def handle_command_action(action, context):
+    try:
+        command = action.payload.get("command")
+    except AttributeError:
+        print("Invalid action payload: expected a dictionary with a 'command' key")
+        return
+    if command:
+        interpreter = Interpreter(context=context, verbose=True)
+        return interpreter.execute_command(command)
+    else:
+        print("No command found in action payload")
+
+
+@plugin("nessie-cli", verbose=True)
+def cli_plugin():
+    requires = [
+        "add_console_message",
+        "clear_console",
+        "add_filter",
+        "remove_filter",
+        "clear_filters",
+    ]
+    handlers = {"cli_execute": handle_command_action}
+    return {"requires": requires, "handlers": handlers}

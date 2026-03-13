@@ -150,7 +150,7 @@ wheels = [
 [[package]]
 name = "nessie-api"
 version = "0.1.0"
-source = { git = "https://github.com/Nessie-org/nessie-api.git#3ff409cb4488105f8835f9d0b46565cb100167aa" }
+source = { git = "https://github.com/Nessie-org/nessie-api.git#2396e3d10a4155f01519bca8fc547d55782b7374" }
 
 [[package]]
 name = "nessie-cli"

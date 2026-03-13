@@ -38,12 +38,9 @@ AdditiveExpression:
 ;
 
 MultiplicativeExpression:
-    left=NotExpression ((op='*' | op='/') right=NotExpression)*
+    left=Primary ((op='*' | op='/') right=Primary)*
 ;
 
-NotExpression:
-    (op='!')* left=Primary
-;
 
 Primary:
     VariableName

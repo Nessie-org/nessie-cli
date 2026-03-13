@@ -1,3 +1,6 @@
+from nessie_api.models import FilterExpression
+
+
 class Evaluator:
     def __init__(self, expression):
         self._expression = expression
@@ -24,6 +27,29 @@ class Evaluator:
 
         _find_variables_recursive(self._expression)
         return variables
+
+    def simple_evaluate(self) -> list[FilterExpression]:
+        if type(self._expression).__name__ == "AndExpression":
+            left = self.simple_evaluate_comparison(self._expression.left)
+            ret = None
+            if isinstance(self._expression.right, list):
+                right = [
+                    self.simple_evaluate_comparison(e) for e in self._expression.right
+                ]
+                ret = [left] + right
+            else:
+                right = self.simple_evaluate_comparison(self._expression.right)
+                ret = [left, right]
+            return ret
+        elif type(self._expression).__name__ == "ComparisonExpression":
+            return [self.simple_evaluate_comparison(self._expression)]
+        else:
+            raise NotImplementedError(
+                f"Simple evaluation not implemented for {type(self._expression)}"
+            )
+
+    def simple_evaluate_comparison(self, exp) -> FilterExpression:
+        return FilterExpression(exp.left.name, exp.op, exp.right)
 
     def evaluate(self, context, exp=None):
         exp = exp if exp is not None else self._expression

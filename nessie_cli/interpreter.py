@@ -1,10 +1,13 @@
 from nessie_api.models.plugin import Action
+from nessie_api.protocols import Context
+from nessie_api.models import Node, Edge
 
 from nessie_cli.evaluator import Evaluator
 
 
 class Interpreter:
-    def __init__(self, verbose=False):
+    def __init__(self, context: Context, verbose=False):
+        self.context = context
         self.verbose = verbose
 
     def interpret(self, commands):
@@ -35,40 +38,125 @@ class Interpreter:
         try:
             id = command.kwargs.get("id")
             properties = {
-                k.value[0]: k.value[1] for k in command.kwargs if k.key != "property"
+                k.value[0]: k.value[1] for k in command.kwargs if k.key == "property"
             }
-            # TODO: Have an actual Action API
-            toSend = Action("SomeName", {"id": id, "properties": properties})
+            idx = self.context.get_active_workspace_index()
+            attributes = {k: Node.Attribute(k, v) for k, v in properties.items()}
+            self.context.get_full_graph_at(idx).add_node(
+                Node(id=id, attributes=attributes)
+            )
+
+            self._refresh_graph()
         except Exception as e:
             print(f"Error executing create node command: {e}")
 
     def _execute_create_edge(self, command):
         try:
             id = command.kwargs.get("id")
+            source = command.args[0]
+            target = command.args[1]
             properties = {
-                k.value[0]: k.value[1] for k in command.kwargs if k.key != "property"
+                k.value[0]: k.value[1] for k in command.kwargs if k.key == "property"
             }
-            # TODO: Have an actual Action API
-            toSend = Action("SomeName", {"id": id, "properties": properties})
+            idx = self.context.get_active_workspace_index()
+            attributes = {k: Edge.Attribute(k, v) for k, v in properties.items()}
+            self.context.get_full_graph_at(idx).add_edge(
+                Edge(id=id, source=source, target=target, attributes=attributes)
+            )
+
+            self._refresh_graph()
         except Exception as e:
             print(f"Error executing create edge command: {e}")
+
+    def _execute_edit_node(self, command):
+        try:
+            id = command.kwargs.get("id")
+            changed = {
+                k.value[0]: k.value[1] for k in command.kwargs if k.key == "ch-prop"
+            }
+            to_del = [k.value for k in command.kwargs if k.key == "del-prop"]
+            to_change = [Node.Attribute(k, v) for k, v in changed.items()]
+
+            idx = self.context.get_active_workspace_index()
+            node = self.context.get_full_graph_at(idx).get_node(id)
+
+            for a in to_change:
+                node.add_attribute(a)
+            for a in to_del:
+                node.remove_attribute(a)
+
+            self._refresh_graph()
+        except Exception as e:
+            print(f"Error executing edit node command: {e}")
+
+    def _execute_edit_edge(self, command):
+        try:
+            id = command.kwargs.get("id")
+            changed = {
+                k.value[0]: k.value[1] for k in command.kwargs if k.key == "ch-prop"
+            }
+            to_del = [k.value for k in command.kwargs if k.key == "del-prop"]
+            to_change = [Edge.Attribute(k, v) for k, v in changed.items()]
+
+            idx = self.context.get_active_workspace_index()
+            edge = self.context.get_full_graph_at(idx).get_edge(id)
+
+            for a in to_change:
+                edge.add_attribute(a)
+            for a in to_del:
+                edge.remove_attribute(a)
+
+            self._refresh_graph()
+        except Exception as e:
+            print(f"Error executing edit edge command: {e}")
+
+    def _execute_delete_node(self, command):
+        try:
+            id = command.kwargs.get("id")
+            idx = self.context.get_active_workspace_index()
+            self.context.get_full_graph_at(idx).remove_node(id)
+            self._refresh_graph()
+        except (ValueError, KeyError) as e:
+            raise e
+        except Exception as e:
+            print(f"Error executing delete node command: {e}")
+
+    def _execute_delete_edge(self, command):
+        try:
+            id = command.kwargs.get("id")
+            idx = self.context.get_active_workspace_index()
+            self.context.get_full_graph_at(idx).remove_edge(id)
+            self._refresh_graph()
+        except Exception as e:
+            print(f"Error executing delete edge command: {e}")
+
+    def _execute_drop_graph(self, command):
+        try:
+            # TODO: Consult about ways to drop the graph
+            pass
+        except Exception as e:
+            print(f"Error executing drop graph command: {e}")
 
     def _execute_filter(self, command):
 
         try:
             exp = command.args[0]
             ev = Evaluator(exp)
+            if self.verbose:
+                print("Variables requested by expression:", ev.variables)
+                print("Context for evaluation:")
 
-            print("Variables requested by expression:", ev.variables)
-            print("Context for evaluation:")
-            try:
-                result = ev.evaluate({})
-                print(f"Evaluation result: {result}")
-            except ValueError as e:
-                print(f"Error evaluating expression: {e}")
+            filters = ev.simple_evaluate()
 
-            # TODO: Have an actual Action API
-            toSend = Action("SomeName", {"evaluator": ev})
+            if self.verbose:
+                print(f"Evaluation result: {filters}")
+
+            self.context.perform_action(Action("clear_filters", None))
+            for fltr in filters:
+                self.context.perform_action(Action("add_filter", {"filter": fltr}))
+
+        except NotImplementedError as e:
+            raise e
         except Exception as e:
             print(f"Error executing filter command: {e}")
 
@@ -79,17 +167,6 @@ class Interpreter:
             toSend = Action("SomeName", {"expression": exp})
         except Exception as e:
             print(f"Error executing search command: {e}")
-
-    def _execute_edit_node(self, command):
-        try:
-            id = command.kwargs.get("id")
-            properties = {
-                k.value[0]: k.value[1] for k in command.kwargs if k.key != "property"
-            }
-            # TODO: Have an actual Action API
-            toSend = Action("SomeName", {"id": id, "properties": properties})
-        except Exception as e:
-            print(f"Error executing edit node command: {e}")
 
     def _show_command(self, command):
         print(
@@ -124,3 +201,8 @@ class Interpreter:
                 self._show_exp(exp.right, indent + 2)
         if hasattr(exp, "name"):
             print("  " * indent + f"Variable Name: {exp.name}")
+
+    def _refresh_graph(self):
+        # TODO: Check the method of refreshing
+        toSend = Action("apply_filters", None)
+        self.context.perform_action(toSend)
