@@ -2,8 +2,9 @@ import os
 from textx import language, metamodel_from_file
 
 from nessie_api.models import plugin
+from nessie_api.models import ConsoleMessageType
 
-from .interpreter import Interpreter
+from .interpreter import Interpreter, MalformedCommandError
 
 __version__ = "0.1.0.dev"
 
@@ -83,13 +84,34 @@ def handle_command_action(action, context):
     try:
         command = action.payload.get("command")
     except AttributeError:
-        print("Invalid action payload: expected a dictionary with a 'command' key")
+        send_message_to_console(
+            "Malformed action payload: 'command' key not found",
+            ConsoleMessageType.ERROR,
+            context,
+        )
         return
     if command:
-        interpreter = Interpreter(context=context, verbose=True)
-        return interpreter.execute_command(command)
+        try:
+            interpreter = Interpreter(context=context, verbose=True)
+            return interpreter.execute_command(command)
+        except MalformedCommandError as e:
+            send_message_to_console(str(e), ConsoleMessageType.ERROR, context)
+        except Exception as e:
+            send_message_to_console(
+                f"Error executing command [THIS MESSAGE IS MEANT TO BE SENT IN DEVELOPEMENT]:\n{e}",
+                ConsoleMessageType.ERROR,
+                context,
+            )
     else:
         print("No command found in action payload")
+
+
+def send_message_to_console(message, type, context):
+    context.perform_action(
+        plugin.Action(
+            "add_console_message", {"message": {"message": message, "type": type}}
+        )
+    )
 
 
 @plugin("nessie-cli", verbose=True)

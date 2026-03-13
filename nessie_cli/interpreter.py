@@ -5,6 +5,10 @@ from nessie_api.models import Node, Edge
 from nessie_cli.evaluator import Evaluator
 
 
+class MalformedCommandError(Exception):
+    pass
+
+
 class Interpreter:
     def __init__(self, context: Context, verbose=False):
         self.context = context
@@ -167,6 +171,12 @@ class Interpreter:
             toSend = Action("SomeName", {"expression": exp})
         except Exception as e:
             print(f"Error executing search command: {e}")
+
+    def _execute_clear(self, command):
+        if command.subcommand or command.args or command.kwargs:
+            raise MalformedCommandError("Clear command does not take any arguments")
+        toSend = Action("clear_console", None)
+        self.context.perform_action(toSend)
 
     def _show_command(self, command):
         print(
