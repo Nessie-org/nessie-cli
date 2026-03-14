@@ -4,11 +4,6 @@ from nessie_api.models import FilterExpression
 class Evaluator:
     def __init__(self, expression):
         self._expression = expression
-        self._variables = self._find_variables()
-
-    @property
-    def variables(self):
-        return self._variables
 
     def _find_variables(self):
         variables = set()
@@ -49,7 +44,7 @@ class Evaluator:
             )
 
     def simple_evaluate_comparison(self, exp) -> FilterExpression:
-        return FilterExpression(exp.left.name, exp.op, exp.right)
+        return FilterExpression(exp.left, exp.op, exp.right)
 
     def evaluate(self, context, exp=None):
         exp = exp if exp is not None else self._expression
