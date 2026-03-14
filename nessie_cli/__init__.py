@@ -122,6 +122,7 @@ def cli_plugin():
         "add_filter",
         "remove_filter",
         "clear_filters",
+        "search",
     ]
     handlers = {"cli_execute": handle_command_action}
     return {"requires": requires, "handlers": handlers}
