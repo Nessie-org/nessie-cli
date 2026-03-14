@@ -82,10 +82,6 @@ def nessie_cli_language():
 
 
 def handle_command_action(action, context: Context):
-
-    import pudb
-
-    pudb.set_trace()
     try:
         command = action.payload.get("command")
         idx = context.get_active_workspace_index()
