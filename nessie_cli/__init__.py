@@ -1,7 +1,7 @@
 import os
 from textx import language, metamodel_from_file
 
-from nessie_api.models import plugin
+from nessie_api.models import Action, plugin
 from nessie_api.models import ConsoleMessageType
 
 from .interpreter import Interpreter, MalformedCommandError
@@ -108,13 +108,11 @@ def handle_command_action(action, context):
 
 def send_message_to_console(message, type, context):
     context.perform_action(
-        plugin.Action(
-            "add_console_message", {"message": {"message": message, "type": type}}
-        )
+        Action("add_console_message", {"message": {"message": message, "type": type}})
     )
 
 
-@plugin("nessie-cli", verbose=True)
+@plugin("nessie-cli")
 def cli_plugin():
     requires = [
         "add_console_message",
