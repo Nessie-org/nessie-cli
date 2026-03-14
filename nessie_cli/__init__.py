@@ -2,7 +2,8 @@ import os
 from textx import language, metamodel_from_file
 
 from nessie_api.models import Action, plugin
-from nessie_api.models import ConsoleMessageType
+from nessie_api.models import ConsoleMessageType, ConsoleMessage
+from nessie_api.protocols import Context
 
 from .interpreter import Interpreter, MalformedCommandError
 
@@ -80,12 +81,17 @@ def nessie_cli_language():
     return mm
 
 
-def handle_command_action(action, context):
+def handle_command_action(action, context: Context):
+
     import pudb
 
     pudb.set_trace()
     try:
         command = action.payload.get("command")
+        idx = context.get_active_workspace_index()
+        context.add_console_message_at(
+            idx, ConsoleMessage(command, ConsoleMessageType.INPUT)
+        )
     except AttributeError:
         send_message_to_console(
             "Malformed action payload: 'command' key not found",

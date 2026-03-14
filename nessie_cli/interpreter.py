@@ -44,9 +44,14 @@ class Interpreter:
     def _execute_create_node(self, command):
 
         try:
-            id = command.kwargs.get("id")
+            id = None
+            for pair in command.kwargs:
+                if pair[0] == "id":
+                    id = pair[1]
+            if id is None:
+                raise MalformedCommandError("Command requires 'id' keyword argument")
             properties = {
-                k.value[0]: k.value[1] for k in command.kwargs if k.key == "property"
+                k.value[0]: k.value[1] for k in command.kwargs if k[0] == "property"
             }
             idx = self.context.get_active_workspace_index()
             attributes = {k: Node.Attribute(k, v) for k, v in properties.items()}
@@ -56,15 +61,20 @@ class Interpreter:
 
             self._refresh_graph()
         except Exception as e:
-            print(f"Error executing create node command: {e}")
+            raise Exception(f"Error executing create node command: {e}") from e
 
     def _execute_create_edge(self, command):
         try:
-            id = command.kwargs.get("id")
+            id = None
+            for pair in command.kwargs:
+                if pair[0] == "id":
+                    id = pair[1]
+            if id is None:
+                raise MalformedCommandError("Command requires 'id' keyword argument")
             source = command.args[0]
             target = command.args[1]
             properties = {
-                k.value[0]: k.value[1] for k in command.kwargs if k.key == "property"
+                k.value[0]: k.value[1] for k in command.kwargs if k[0] == "property"
             }
             idx = self.context.get_active_workspace_index()
             attributes = {k: Edge.Attribute(k, v) for k, v in properties.items()}
@@ -74,15 +84,20 @@ class Interpreter:
 
             self._refresh_graph()
         except Exception as e:
-            print(f"Error executing create edge command: {e}")
+            raise Exception(f"Error executing create edge command: {e}") from e
 
     def _execute_edit_node(self, command):
         try:
-            id = command.kwargs.get("id")
+            id = None
+            for pair in command.kwargs:
+                if pair[0] == "id":
+                    id = pair[1]
+            if id is None:
+                raise MalformedCommandError("Command requires 'id' keyword argument")
             changed = {
-                k.value[0]: k.value[1] for k in command.kwargs if k.key == "ch-prop"
+                k.value[0]: k.value[1] for k in command.kwargs if k[0] == "ch-prop"
             }
-            to_del = [k.value for k in command.kwargs if k.key == "del-prop"]
+            to_del = [k.value for k in command.kwargs if k[0] == "del-prop"]
             to_change = [Node.Attribute(k, v) for k, v in changed.items()]
 
             idx = self.context.get_active_workspace_index()
@@ -95,15 +110,20 @@ class Interpreter:
 
             self._refresh_graph()
         except Exception as e:
-            print(f"Error executing edit node command: {e}")
+            raise Exception(f"Error executing edit node command: {e}") from e
 
     def _execute_edit_edge(self, command):
         try:
-            id = command.kwargs.get("id")
+            id = None
+            for pair in command.kwargs:
+                if pair[0] == "id":
+                    id = pair[1]
+            if id is None:
+                raise MalformedCommandError("Command requires 'id' keyword argument")
             changed = {
-                k.value[0]: k.value[1] for k in command.kwargs if k.key == "ch-prop"
+                k.value[0]: k.value[1] for k in command.kwargs if k[0] == "ch-prop"
             }
-            to_del = [k.value for k in command.kwargs if k.key == "del-prop"]
+            to_del = [k.value for k in command.kwargs if k[0] == "del-prop"]
             to_change = [Edge.Attribute(k, v) for k, v in changed.items()]
 
             idx = self.context.get_active_workspace_index()
@@ -116,38 +136,47 @@ class Interpreter:
 
             self._refresh_graph()
         except Exception as e:
-            print(f"Error executing edit edge command: {e}")
+            raise Exception(f"Error executing edit edge command: {e}") from e
 
     def _execute_delete_node(self, command):
         try:
-            id = command.kwargs.get("id")
+            id = None
+            for pair in command.kwargs:
+                if pair[0] == "id":
+                    id = pair[1]
+            if id is None:
+                raise MalformedCommandError("Command requires 'id' keyword argument")
             idx = self.context.get_active_workspace_index()
             self.context.get_full_graph_at(idx).remove_node(id)
             self._refresh_graph()
         except (ValueError, KeyError) as e:
             raise e
         except Exception as e:
-            print(f"Error executing delete node command: {e}")
+            raise Exception(f"Error executing delete node command: {e}") from e
 
     def _execute_delete_edge(self, command):
         try:
-            id = command.kwargs.get("id")
+            id = None
+            for pair in command.kwargs:
+                if pair[0] == "id":
+                    id = pair[1]
+            if id is None:
+                raise MalformedCommandError("Command requires 'id' keyword argument")
             idx = self.context.get_active_workspace_index()
             self.context.get_full_graph_at(idx).remove_edge(id)
             self._refresh_graph()
         except Exception as e:
-            print(f"Error executing delete edge command: {e}")
+            raise Exception(f"Error executing delete edge command: {e}") from e
 
     def _execute_drop_graph(self, command):
         try:
-
             idx = self.context.get_active_workspace_index()
             old_graph = self.context.get_full_graph_at(idx)
             empty_graph = Graph(name=old_graph.name, graph_type=old_graph.graph_type)
             self.context.set_full_graph_at(idx, empty_graph)
             self.context.set_graph_at(idx, empty_graph)
         except Exception as e:
-            print(f"Error executing drop graph command: {e}")
+            raise Exception(f"Error executing drop graph command: {e}") from e
 
     def _execute_filter(self, command):
 
@@ -170,7 +199,7 @@ class Interpreter:
         except NotImplementedError as e:
             raise e
         except Exception as e:
-            print(f"Error executing filter command: {e}")
+            raise Exception(f"Error executing filter command: {e}") from e
 
     def _execute_search(self, command):
         try:
@@ -178,7 +207,7 @@ class Interpreter:
             toSend = Action("search", {"query": exp})
             self.context.perform_action(toSend)
         except Exception as e:
-            print(f"Error executing search command: {e}")
+            raise Exception(f"Error executing search command: {e}") from e
 
     def _execute_clear(self, command):
         if command.subcommand or command.args or command.kwargs:
@@ -197,7 +226,7 @@ class Interpreter:
             if arg.__class__.__name__.endswith("Expression"):
                 self._show_exp(arg)
         for kwarg in command.kwargs:
-            print(f" - Keyword Argument: {kwarg.key} = {kwarg.value}")
+            print(f" - Keyword Argument: {kwarg[0]} = {kwarg[1]}")
 
     def _show_exp(self, exp, indent=0):
         print("  " * indent + f"Expression: {type(exp).__name__}")
