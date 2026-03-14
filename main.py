@@ -10,7 +10,7 @@ def main():
     # Parse a command
     file = meta.model_from_file("tests/test_files/test_file.nss")
 
-    interpreter = Interpreter(None, verbose=True)
+    interpreter = Interpreter(None)
     interpreter.interpret(file.commands)
 
 

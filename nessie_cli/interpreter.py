@@ -149,7 +149,6 @@ class Interpreter:
 
         try:
             exp = command.args[0]
-            ev = Evaluator(exp)
             if self.verbose:
                 print("Variables requested by expression:", ev.variables)
                 print("Context for evaluation:")

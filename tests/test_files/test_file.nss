@@ -1,1 +1,1 @@
-filter `Age>30`
+filter `djura == djura`
