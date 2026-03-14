@@ -1,4 +1,4 @@
-from nessie_api.models import FilterExpression
+from nessie_api.models import FilterExpression, FilterOperator
 
 
 class Evaluator:
@@ -44,7 +44,10 @@ class Evaluator:
             )
 
     def simple_evaluate_comparison(self, exp) -> FilterExpression:
-        return FilterExpression(exp.left, exp.op, exp.right)
+        left = exp.left
+        right = exp.right
+        op = self._str_to_op(exp.op)
+        return FilterExpression(left, op, right)
 
     def evaluate(self, context, exp=None):
         exp = exp if exp is not None else self._expression
@@ -80,6 +83,20 @@ class Evaluator:
             return lhs
         else:
             return self._eval_operation(op, lhs, rhs)
+
+    def _str_to_op(self, op) -> FilterOperator:
+        if op == "==":
+            return FilterOperator.EQ
+        elif op == "!=":
+            return FilterOperator.NEQ
+        elif op == ">":
+            return FilterOperator.GT
+        elif op == "<":
+            return FilterOperator.LT
+        elif op == ">=":
+            return FilterOperator.GTE
+        elif op == "<=":
+            return FilterOperator.LTE
 
     def _eval_operation(self, op, left_val, right_val):
         if op == "==":

@@ -18,6 +18,9 @@ dev = [
 [tool.uv.sources]
 nessie-api = { git = "https://github.com/Nessie-org/nessie-api.git" }
 
+[tool.setuptools.package-data]
+nessie_cli = ["*.tx"]
+
 [project.entry-points.textx_languages]
 nessie_cli = "nessie_cli:nessie_cli_language"
 
