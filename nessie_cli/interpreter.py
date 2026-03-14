@@ -1,6 +1,6 @@
 from nessie_api.models.plugin import Action
 from nessie_api.protocols import Context
-from nessie_api.models import Node, Edge
+from nessie_api.models import Node, Edge, Graph
 
 from nessie_cli.evaluator import Evaluator
 
@@ -136,8 +136,12 @@ class Interpreter:
 
     def _execute_drop_graph(self, command):
         try:
-            # TODO: Consult about ways to drop the graph
-            pass
+
+            idx = self.context.get_active_workspace_index()
+            old_graph = self.context.get_full_graph_at(idx)
+            empty_graph = Graph(name=old_graph.name, graph_type=old_graph.graph_type)
+            self.context.set_full_graph_at(idx, empty_graph)
+            self.context.set_graph_at(idx, empty_graph)
         except Exception as e:
             print(f"Error executing drop graph command: {e}")
 
@@ -167,8 +171,8 @@ class Interpreter:
     def _execute_search(self, command):
         try:
             exp = command.args[0]
-            # TODO: Have an actual Action API
-            toSend = Action("SomeName", {"expression": exp})
+            toSend = Action("search", {"query": exp})
+            self.context.perform_action(toSend)
         except Exception as e:
             print(f"Error executing search command: {e}")
 
@@ -213,6 +217,5 @@ class Interpreter:
             print("  " * indent + f"Variable Name: {exp.name}")
 
     def _refresh_graph(self):
-        # TODO: Check the method of refreshing
         toSend = Action("apply_filters", None)
         self.context.perform_action(toSend)
