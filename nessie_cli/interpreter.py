@@ -2,7 +2,7 @@ from textx import metamodel_for_file
 
 from nessie_api.models.plugin import Action
 from nessie_api.protocols import Context
-from nessie_api.models import Node, Edge, Graph
+from nessie_api.models import Node, Edge, Graph, Attribute
 
 from nessie_cli.evaluator import Evaluator
 
@@ -45,18 +45,20 @@ class Interpreter:
 
         try:
             id = None
-            for pair in command.kwargs:
-                if pair[0] == "id":
-                    id = pair[1]
+            for kwpar in command.kwargs:
+                if kwpar.key == "id":
+                    id = kwpar.value
             if id is None:
                 raise MalformedCommandError("Command requires 'id' keyword argument")
             properties = {
-                k.value[0]: k.value[1] for k in command.kwargs if k[0] == "property"
+                kwpar.value[0]: kwpar.value[1]
+                for kwpar in command.kwargs
+                if kwpar.key == "property"
             }
             idx = self.context.get_active_workspace_index()
-            attributes = {k: Node.Attribute(k, v) for k, v in properties.items()}
+            attributes = {k: Attribute(k, v) for k, v in properties.items()}
             self.context.get_full_graph_at(idx).add_node(
-                Node(id=id, attributes=attributes)
+                Node(id, attributes=attributes)
             )
 
             self._refresh_graph()
@@ -66,20 +68,29 @@ class Interpreter:
     def _execute_create_edge(self, command):
         try:
             id = None
-            for pair in command.kwargs:
-                if pair[0] == "id":
-                    id = pair[1]
+            for kwpar in command.kwargs:
+                if kwpar.key == "id":
+                    id = kwpar.value
             if id is None:
                 raise MalformedCommandError("Command requires 'id' keyword argument")
             source = command.args[0]
             target = command.args[1]
             properties = {
-                k.value[0]: k.value[1] for k in command.kwargs if k[0] == "property"
+                kwpar.value[0]: kwpar.value[1]
+                for kwpar in command.kwargs
+                if kwpar.key == "property"
             }
             idx = self.context.get_active_workspace_index()
-            attributes = {k: Edge.Attribute(k, v) for k, v in properties.items()}
-            self.context.get_full_graph_at(idx).add_edge(
-                Edge(id=id, source=source, target=target, attributes=attributes)
+            attributes = {k: Attribute(k, v) for k, v in properties.items()}
+            graph = self.context.get_full_graph_at(idx)
+            for node in graph.nodes:
+                if node.id == source:
+                    source = node
+                elif node.id == target:
+                    target = node
+
+            graph.add_edge(
+                Edge(id, source=source, target=target, attributes=attributes)
             )
 
             self._refresh_graph()
@@ -89,16 +100,16 @@ class Interpreter:
     def _execute_edit_node(self, command):
         try:
             id = None
-            for pair in command.kwargs:
-                if pair[0] == "id":
-                    id = pair[1]
+            for kwpar in command.kwargs:
+                if kwpar.key == "id":
+                    id = kwpar.value
             if id is None:
                 raise MalformedCommandError("Command requires 'id' keyword argument")
             changed = {
-                k.value[0]: k.value[1] for k in command.kwargs if k[0] == "ch-prop"
+                k.value[0]: k.value[1] for k in command.kwargs if k.key == "ch_prop"
             }
-            to_del = [k.value for k in command.kwargs if k[0] == "del-prop"]
-            to_change = [Node.Attribute(k, v) for k, v in changed.items()]
+            to_del = [k.value for k in command.kwargs if k.key == "del_prop"]
+            to_change = [Attribute(k, v) for k, v in changed.items()]
 
             idx = self.context.get_active_workspace_index()
             node = self.context.get_full_graph_at(idx).get_node(id)
@@ -115,16 +126,16 @@ class Interpreter:
     def _execute_edit_edge(self, command):
         try:
             id = None
-            for pair in command.kwargs:
-                if pair[0] == "id":
-                    id = pair[1]
+            for kwpar in command.kwargs:
+                if kwpar.key == "id":
+                    id = kwpar.value
             if id is None:
                 raise MalformedCommandError("Command requires 'id' keyword argument")
             changed = {
-                k.value[0]: k.value[1] for k in command.kwargs if k[0] == "ch-prop"
+                k.value[0]: k.value[1] for k in command.kwargs if k.key == "ch_prop"
             }
-            to_del = [k.value for k in command.kwargs if k[0] == "del-prop"]
-            to_change = [Edge.Attribute(k, v) for k, v in changed.items()]
+            to_del = [k.value for k in command.kwargs if k.key == "del_prop"]
+            to_change = [Attribute(k, v) for k, v in changed.items()]
 
             idx = self.context.get_active_workspace_index()
             edge = self.context.get_full_graph_at(idx).get_edge(id)
@@ -141,9 +152,9 @@ class Interpreter:
     def _execute_delete_node(self, command):
         try:
             id = None
-            for pair in command.kwargs:
-                if pair[0] == "id":
-                    id = pair[1]
+            for kwpar in command.kwargs:
+                if kwpar.key == "id":
+                    id = kwpar.value
             if id is None:
                 raise MalformedCommandError("Command requires 'id' keyword argument")
             idx = self.context.get_active_workspace_index()
@@ -157,9 +168,9 @@ class Interpreter:
     def _execute_delete_edge(self, command):
         try:
             id = None
-            for pair in command.kwargs:
-                if pair[0] == "id":
-                    id = pair[1]
+            for kwpar in command.kwargs:
+                if kwpar.key == "id":
+                    id = kwpar.value
             if id is None:
                 raise MalformedCommandError("Command requires 'id' keyword argument")
             idx = self.context.get_active_workspace_index()
