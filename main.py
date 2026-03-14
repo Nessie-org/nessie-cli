@@ -8,10 +8,9 @@ def main():
     meta = metamodel_for_file("*.nss")
 
     # Parse a command
-    file = meta.model_from_file("tests/test_files/test_file.nss")
-
-    interpreter = Interpreter(None)
-    interpreter.interpret(file.commands)
+    with open("tests/test_files/test_file.nss") as f:
+        interpreter = Interpreter(None)
+        interpreter.interpret(f.readlines())
 
 
 if __name__ == "__main__":

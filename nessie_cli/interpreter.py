@@ -1,3 +1,5 @@
+from textx import metamodel_for_file
+
 from nessie_api.models.plugin import Action
 from nessie_api.protocols import Context
 from nessie_api.models import Node, Edge, Graph
@@ -13,12 +15,14 @@ class Interpreter:
     def __init__(self, context: Context, verbose=False):
         self.context = context
         self.verbose = verbose
+        self.meta = metamodel_for_file("*.nss")
 
     def interpret(self, commands):
         for command in commands:
             self.execute_command(command)
 
     def execute_command(self, command):
+        command = self.meta.model_from_str(command).commands[0]
         if self.verbose:
             self._show_command(command)
 

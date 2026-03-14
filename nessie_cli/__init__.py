@@ -81,6 +81,9 @@ def nessie_cli_language():
 
 
 def handle_command_action(action, context):
+    import pudb
+
+    pudb.set_trace()
     try:
         command = action.payload.get("command")
     except AttributeError:
@@ -92,7 +95,7 @@ def handle_command_action(action, context):
         return
     if command:
         try:
-            interpreter = Interpreter(context=context, verbose=True)
+            interpreter = Interpreter(context=context)
             return interpreter.execute_command(command)
         except MalformedCommandError as e:
             send_message_to_console(str(e), ConsoleMessageType.ERROR, context)
